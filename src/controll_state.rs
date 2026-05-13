@@ -20,6 +20,5 @@ impl ControllManager {
 
     pub fn change_state(&mut self, state: ControllState) {
         self.current_state = state;
-        log_debug!("State changed: {:?}", self.current_state);
     }
 }

@@ -16,11 +16,6 @@ pub fn run() -> Result<()> {
 
     let services = &init_services().create_mutex().create_arc();
 
-    services.lock_unw().use_guard(|services| {
-        let file_section = FilesSection::new();
-        services.sections_manager.add_section(file_section);
-    });
-
     run_events_listening(reciver, services);
     run_user_inputs_listening(&sender, services);
 

@@ -1,12 +1,14 @@
 use std::{
+    io::stdout,
     sync::{Arc, Mutex, mpsc::Sender},
     thread,
 };
 
 use better_sms::mutex::{MutexGuardWork, MutexWork};
 use crossterm::{
+    cursor::SetCursorStyle,
     event::{KeyCode, KeyModifiers},
-    terminal,
+    execute, terminal,
 };
 
 use crate::{event::Event, init_services::Services};
@@ -68,13 +70,16 @@ pub fn run_user_inputs_listening(
                     crate::controll_state::ControllState::Visual => {
                         drop(services_guard);
                         visual_mod();
+                        execute!(stdout(), SetCursorStyle::BlinkingUnderScore).unwrap();
                     }
                     crate::controll_state::ControllState::Normal => {
                         drop(services_guard);
                         normal_mod();
+                        execute!(stdout(), SetCursorStyle::BlinkingBlock).unwrap();
                     }
                     crate::controll_state::ControllState::Command => {
                         drop(services_guard);
+                        execute!(stdout(), SetCursorStyle::BlinkingBlock).unwrap();
                     }
                 }
 
