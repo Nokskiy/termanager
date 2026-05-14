@@ -54,6 +54,12 @@ pub fn run_user_inputs_listening(
                     _ => {}
                 };
 
+                let command_mod = || {
+                    if key_event.code == KeyCode::Enter {}
+
+                    let char = key_event.code.to_string().to_lowercase();
+                };
+
                 if key_event.code == KeyCode::Esc {
                     services
                         .lock_unw()
@@ -79,6 +85,7 @@ pub fn run_user_inputs_listening(
                     }
                     crate::controll_state::ControllState::Command => {
                         drop(services_guard);
+                        command_mod();
                         execute!(stdout(), SetCursorStyle::BlinkingBlock).unwrap();
                     }
                 }
