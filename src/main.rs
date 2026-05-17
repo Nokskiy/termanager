@@ -1,28 +1,24 @@
 use std::{ops::DerefMut, path::PathBuf};
 
-use better_sms::mutex::{MutexGuardWork, MutexWork};
+use anyhow::Result;
+use better_sms::{
+    arc::ArcCreate,
+    mutex::{MutexCreate, MutexGuardWork, MutexWork},
+};
 use rand::random;
-use termanager::{display::display_buffer, services::ServicesManager};
+use termanager::{
+    display::display_buffer, services::ServicesManager,
+    user_inputs::user_inputs_listener::run_user_listener,
+};
 
-pub fn main() {
-    run();
+pub fn main() -> Result<()> {
+    run()?;
+    Ok(())
 }
 
-pub fn run() {
-    let services_manager = ServicesManager::new();
+pub fn run() -> Result<()> {
+    let services_manager = ServicesManager::new().create_mutex().create_arc();
 
-    for _ in 0..5 {
-        services_manager.sections_manager.lock_unw().create_section(
-            termanager::display::sections::Section::Files(random(), PathBuf::from("D:\\")),
-        );
-    }
-
-    services_manager
-        .sections_manager
-        .lock_unw()
-        .update_display_buffer(services_manager.display_buffer.lock_unw().deref_mut());
-
-    services_manager.display_buffer.lock_unw().draw();
-
+    run_user_listener(&services_manager)?;
     loop {}
 }

@@ -3,7 +3,7 @@ use std::io::stdout;
 use crossterm::{
     cursor::MoveTo,
     execute,
-    style::{Color, Print, SetBackgroundColor, SetForegroundColor},
+    style::{Color, Print, ResetColor, SetBackgroundColor, SetForegroundColor},
     terminal::{self, Clear},
 };
 
@@ -22,6 +22,8 @@ impl DisplayBuffer {
 
     pub fn update_grid(&mut self) {
         let (terminal_width, terminal_height) = terminal::size().unwrap();
+
+        self.grid.clear();
 
         let mut width_vec = vec![];
         width_vec.resize_with(terminal_width as usize, || DisplayBufferElement::None);
@@ -50,19 +52,23 @@ impl DisplayBuffer {
 
                     DisplayBufferElement::Char(char) => execute!(
                         stdout(),
+                        ResetColor,
                         MoveTo(x as u16, y as u16),
                         SetBackgroundColor(Color::Red),
                         SetForegroundColor(Color::Red),
-                        Print(char)
+                        Print(char),
+                        ResetColor
                     )
                     .unwrap(),
 
                     DisplayBufferElement::Border => execute!(
                         stdout(),
+                        ResetColor,
                         MoveTo(x as u16, y as u16),
                         SetBackgroundColor(Color::Blue),
                         SetForegroundColor(Color::Blue),
-                        Print(" ")
+                        Print(" "),
+                        ResetColor
                     )
                     .unwrap(),
                 }

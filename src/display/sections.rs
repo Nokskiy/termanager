@@ -1,8 +1,15 @@
-use std::path::PathBuf;
+use std::{
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
 
+use better_sms::mutex::MutexWork;
 use rand::random;
 
-use crate::display::display_buffer::DisplayBuffer;
+use crate::{
+    display::display_buffer::DisplayBuffer,
+    services::{self, ServicesManager},
+};
 
 pub struct SectionManager {
     pub sections: Vec<Section>,
@@ -22,14 +29,41 @@ impl SectionManager {
         self.sections.push(section_type);
     }
 
-    pub fn update_display_buffer(&mut self, display_buffer: &mut DisplayBuffer) {
+    pub fn update_display_buffer(
+        &mut self,
+        services: &ServicesManager,
+        display_buffer: &mut DisplayBuffer,
+    ) {
         for section in &self.sections {
             match section {
                 Section::Files(_, _) => {
                     Self::add_files_section_to_display(&self.sections, display_buffer)
                 }
-                Section::Commands(_) => {}
+                Section::Commands(_) => {
+                    Self::add_commands_section_to_display(&services, display_buffer);
+                }
             }
+        }
+    }
+
+    fn add_commands_section_to_display(
+        services: &ServicesManager,
+        display_buffer: &mut DisplayBuffer,
+    ) {
+        let (_, terminal_height) = display_buffer.get_size();
+
+        let user_mod_name = services
+            .user_controll_mod_manager
+            .lock_unw()
+            .current_mod
+            .to_string();
+
+        for (x_i, char) in user_mod_name.chars().into_iter().enumerate() {
+            display_buffer.set_cell(
+                x_i as usize,
+                (terminal_height - 1) as usize,
+                super::display_buffer::DisplayBufferElement::Char(char),
+            );
         }
     }
 
