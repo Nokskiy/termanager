@@ -4,7 +4,7 @@ use crossterm::{
     cursor::MoveTo,
     execute,
     style::{Color, Print, SetBackgroundColor, SetForegroundColor},
-    terminal,
+    terminal::{self, Clear},
 };
 
 pub struct DisplayBuffer {
@@ -14,6 +14,10 @@ pub struct DisplayBuffer {
 impl DisplayBuffer {
     pub fn new() -> Self {
         Self { grid: vec![] }
+    }
+
+    pub fn get_size(&self) -> (u16, u16) {
+        (self.grid[0].len() as u16, self.grid.len() as u16)
     }
 
     pub fn update_grid(&mut self) {
@@ -30,7 +34,14 @@ impl DisplayBuffer {
         self.grid[y][x] = display_element;
     }
 
-    pub fn draw(self) {
+    pub fn draw(&self) {
+        execute!(
+            stdout(),
+            Clear(terminal::ClearType::All),
+            crossterm::cursor::MoveTo(0, 0)
+        )
+        .unwrap();
+
         for y in 0..self.grid.len() {
             for x in 0..self.grid[y].len() {
                 let element = &self.grid[y][x];
